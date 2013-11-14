@@ -1,0 +1,34 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Text in echo
+#: wp-views-output-formats.php:147
+msgid "API token"
+msgstr ""
+
+#. Text in echo
+#: wp-views-output-formats.php:145
+msgid "From this screen you can get the URL links for all your Views in XML or JSON formats."
+msgstr ""
+
+#. Text in echo
+#: wp-views-output-formats.php:147
+msgid "The token can be reset by deactivating and reactivating the plugin."
+msgstr ""
+
+#. Text in function
+#: wp-views-output-formats.php:1
+msgid "Views Output Formats"
+msgstr ""
+
+#. Text in echo
+#: wp-views-output-formats.php:147
+msgid "Your secret"
+msgstr ""
+
+#. Text in echo
+#: wp-views-output-formats.php:147
+msgid "is:"
+msgstr ""
