@@ -18,7 +18,7 @@ with other systems that speak JSON and XML.
 
 *Basic usage*
 
-Create your View, go to Settings -> Views Output Formats and pick your format to get a link!
+Create your View, go to Settings -> Views Output Formats and pick your format. You will get a link to the XML or JSON version of the query.
 
 == Requirements ==
 * PHP 5.3 or higher
@@ -57,6 +57,7 @@ Initial release
 
 == Upcoming features ==
 
-* Support for getting post taxonomies
-* Support for user export (New feature in Views 1.4)
+* Support for Taxonomy and User queries
 
+Feel free to contribute over at GitHub:
+https://github.com/khromov/wp-views-output-formats

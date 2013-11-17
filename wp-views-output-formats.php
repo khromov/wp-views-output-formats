@@ -60,44 +60,77 @@ class Views_Output_Formats
 			//Pick format
 			$format = (get_query_var('vof_format') === 'xml') ? 'xml' : 'json';
 
-			//Query results
-			$query_result = wpv_filter_get_posts((int)get_query_var('vof_id'));
+			/* @var WP_Views $WP_Views */
+			global $WP_Views;
 
-			//Add in custom fields
-			$posts_fixed['post'] = $this->views_output_merge_custom_fields($query_result->posts);
+			//Get the View query type
+			$view_settings = $WP_Views->get_view_settings((int)get_query_var('vof_id'));
 
-			//TODO: Add in taxonomies
-			//$posts_fixed['post'] = views_output_merge_taxonomies($query_result->posts);
-
-			//Finalize array
-			$posts_finished = array('posts' => $posts_fixed);
-
-			if($format === 'json')
+			//Taxonomy query
+			if($view_settings['query_type'][0] === 'taxonomy')
 			{
-				//Porque you no work?
-				//status_header('Content-type: application/json');
+				//FIXME: Not supported yet
 
-				header('Content-type: application/json');
-				echo json_encode($posts_finished);
+				//$result = $WP_Views->taxonomy_query($view_settings);
+				//print_r($result);
 			}
-			else
+			else if($view_settings['query_type'][0] === 'users') //User query
 			{
-				//status_header('Content-Type:text/xml');
-				header('Content-Type: text/xml');
+				//FIXME: Not supported yet
+				//$result = $WP_Views->users_query($view_settings);
 
-				//Do some additional transformation to get the output format we want
-				$posts_tmp = array();
-				$i = 0;
-				foreach($posts_finished as $post)
+				//FIXME: This exposes sensitive data such as user_pass per default. Needs to be filtered before output
+				//print_r($result);
+			}
+			else //Posts query
+			{
+				//Query results. This is done differently from Taxonomy and Users queries
+				$query_result = wpv_filter_get_posts((int)get_query_var('vof_id'));
+
+				//Add in custom fields
+				$posts_fixed['post'] = $this->views_output_merge_custom_fields($query_result->posts);
+
+				//TODO: Add in taxonomies
+				//$posts_fixed['post'] = views_output_merge_taxonomies($query_result->posts);
+
+				//Finalize array
+				$posts_finished = array('posts' => $posts_fixed);
+
+				if($format === 'json')
 				{
-					foreach($post['post'] as $post_inner)
-					{
-						$posts_tmp['posts'][$i] = $post_inner;
-						$i++;
-					}
-				}
+					//Why doesn't this work properly?
+					//status_header('Content-type: application/json');
 
-				echo Views_Output_Formats_XMLSerializer::generateValidXmlFromArray($posts_tmp, '', 'post');
+					header('Content-type: application/json');
+					echo json_encode($posts_finished);
+				}
+				else
+				{
+					//status_header('Content-Type:text/xml');
+					header('Content-Type: text/xml');
+
+					//Do some additional transformation to get the output format we want
+					$posts_tmp = array();
+
+					//Special condition for no results
+					if(sizeof($query_result->posts)!==0)
+					{
+						$i = 0;
+						foreach($posts_finished as $post)
+						{
+							foreach($post['post'] as $post_inner)
+							{
+								$posts_tmp['posts'][$i] = $post_inner;
+								$i++;
+							}
+						}
+					}
+					else
+						$posts_tmp['posts'] = array();
+
+
+					echo Views_Output_Formats_XMLSerializer::generateValidXmlFromArray($posts_tmp, '', 'post');
+				}
 			}
 
 			die(); //Early return
