@@ -52,7 +52,7 @@ class Views_Output_Formats
 		if(	get_query_var('vof_id') !== '' 		&&
 			get_query_var('vof_token') !== '' 	&&
 			get_option('vof_token') !== false 	&&
-			get_option('vof_token') === get_query_var('vof_token') &&
+			(get_query_var('vof_token') === get_option('vof_token') || get_query_var('vof_token') === $this->get_view_vof_token((int)get_query_var('vof_id'))) &&
 			get_post_type((int)get_query_var('vof_id')) === 'view' &&
 			function_exists('wpv_filter_get_posts')
 		)
@@ -175,16 +175,15 @@ class Views_Output_Formats
 											'. $view->post_title .'
 										</td>
 										<td>
-											<a href="'. get_bloginfo('url') .'/?vof_id='.$view->ID.'&vof_format=xml&vof_token='. get_option('vof_token') .'">XML</a>
+											<a href="'. get_bloginfo('url') .'/?vof_id='.$view->ID.'&vof_format=xml&vof_token='. $this->get_view_vof_token($view->ID) .'">XML</a>
 											|
-											<a href="'. get_bloginfo('url') .'/?vof_id='.$view->ID.'&vof_format=json&vof_token='. get_option('vof_token') .'">JSON</a>
+											<a href="'. get_bloginfo('url') .'/?vof_id='.$view->ID.'&vof_format=json&vof_token='. $this->get_view_vof_token($view->ID) .'">JSON</a>
 										</td>
 									</tr>
 									';
 		}
 
 		$views_html_output .= '</table>';
-
 		ob_start();
 		?>
 		<div class="wrap">
@@ -196,7 +195,8 @@ class Views_Output_Formats
 			<div class="info" style="padding-top: 10px;">
 				<?php _e( 'From this screen you can get the URL links for all your Views in XML or JSON formats.', self::text_domain ); ?>
 				<p>
-					<?php _e('Your secret', self::text_domain); ?> <abbr title="<?php _e('The token can be reset by deactivating and reactivating the plugin.', self::text_domain); ?>"><?php _e('API token',self::text_domain); ?> </abbr> <?php _e('is:', self::text_domain); ?> <strong><?php echo get_option('vof_token'); ?></strong> <br/>
+					<?php _e('Your global secret', self::text_domain); ?> <abbr title="<?php _e('The token can be reset by deactivating and reactivating the plugin.', self::text_domain); ?>"><?php _e('API token',self::text_domain); ?> </abbr> <?php _e('is:', self::text_domain); ?> <strong><?php echo get_option('vof_token'); ?></strong> <br/>
+					<?php _e('Each View also has an individual API token that is valid for that view alone.', self::text_domain); ?> <br/>
 				</p>
 				<p>
 					<?php echo $views_html_output; ?>
@@ -245,13 +245,27 @@ class Views_Output_Formats
 	}
 
 	/**
+	 * Return unique token for a View
+	 *
+	 * The token is derived from the master token, which should
+	 * never be used publicly.
+	 */
+	function get_view_vof_token($view_id)
+	{
+		//Use the secondary token to generate an unique token for a specific view
+		return md5((string)$view_id . get_option('vof_secondary_token') . get_option('vof_token'));
+	}
+
+	/**
 	 * Plugin activation function
 	 **/
 	static function activate()
 	{
 		//Create a random API token
 		$token = md5(wp_generate_password());
+		$secondary_token = md5(wp_generate_password());
 		add_option('vof_token', $token);
+		add_option('vof_secondary_token', $secondary_token);
 	}
 
 	/**
@@ -259,8 +273,9 @@ class Views_Output_Formats
 	 */
 	static function deactivate()
 	{
-		//If we re-initialize the plugin, the API key will be changed
+		//If we re-initialize the plugin, the API keys will be changed
 		delete_option('vof_token');
+		delete_option('vof_secondary_token');
 	}
 }
 
