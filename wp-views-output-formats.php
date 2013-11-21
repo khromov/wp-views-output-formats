@@ -3,7 +3,7 @@
 Plugin Name: Views Output Formats
 Plugin URI: http://wordpress.org/extend/plugins/views-output-formats
 Description: Provides JSON and XML output formats for Toolset Views
-Version: 1.0
+Version: 2.0
 Author: khromov
 Author URI: http://khromov.wordpress.com
 License: GPL2
@@ -66,21 +66,43 @@ class Views_Output_Formats
 			//Get the View query type
 			$view_settings = $WP_Views->get_view_settings((int)get_query_var('vof_id'));
 
+			//Prepare string for output
+			$output = '';
+
+			//Prepare string for data
+			$result = array();
+
+			//Set headers
+			if($format === 'json')
+				header('Content-type: application/json');
+			else
+				header('Content-Type: text/xml');
+
 			//Taxonomy query
 			if($view_settings['query_type'][0] === 'taxonomy')
 			{
-				//FIXME: Not supported yet
+				$result['taxonomies'] = $WP_Views->taxonomy_query($view_settings);
 
-				//$result = $WP_Views->taxonomy_query($view_settings);
-				//print_r($result);
+				if($format === 'json')
+					$output =  json_encode($result);
+				else
+					$output = Views_Output_Formats_XMLSerializer::generateValidXmlFromArray($result, '', 'taxonomy');
 			}
 			else if($view_settings['query_type'][0] === 'users') //User query
 			{
-				//FIXME: Not supported yet
-				//$result = $WP_Views->users_query($view_settings);
+				$result['users'] = $WP_Views->users_query($view_settings);
 
-				//FIXME: This exposes sensitive data such as user_pass per default. Needs to be filtered before output
-				//print_r($result);
+				//Filter sensitive information
+				foreach($result['users'] as &$user)
+				{
+					$user->user_pass = '';
+					$user->user_activation_key = '';
+				}
+
+				if($format === 'json')
+					$output =  json_encode($result);
+				else
+					$output = Views_Output_Formats_XMLSerializer::generateValidXmlFromArray($result, '', 'users');
 			}
 			else //Posts query
 			{
@@ -98,17 +120,11 @@ class Views_Output_Formats
 
 				if($format === 'json')
 				{
-					//Why doesn't this work properly?
-					//status_header('Content-type: application/json');
-
-					header('Content-type: application/json');
-					echo json_encode($posts_finished);
+					$posts_json = array('posts' => $this->views_output_merge_custom_fields($query_result->posts));
+					$output = json_encode($posts_json);
 				}
 				else
 				{
-					//status_header('Content-Type:text/xml');
-					header('Content-Type: text/xml');
-
 					//Do some additional transformation to get the output format we want
 					$posts_tmp = array();
 
@@ -128,12 +144,15 @@ class Views_Output_Formats
 					else
 						$posts_tmp['posts'] = array();
 
-
 					echo Views_Output_Formats_XMLSerializer::generateValidXmlFromArray($posts_tmp, '', 'post');
 				}
 			}
 
-			die(); //Early return
+			//Print output
+			echo $output;
+
+			//Early termination
+			die();
 		}
 	}
 
@@ -272,6 +291,9 @@ class Views_Output_Formats_XMLSerializer
 		{
 			foreach ($array as $key => $value)
 			{
+				//Check for invalid XML element names
+				$key = (sanitize_key($key) === '') ? 'field' : sanitize_key($key);
+
 				if (is_numeric($key))
 				{
 					$key = $node_name;

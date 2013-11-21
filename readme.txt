@@ -3,7 +3,7 @@ Contributors: khromov
 Tags: views, wp_query, query, xml, json
 Requires at least: 3.6
 Tested up to: 3.7
-Stable tag: 1.0
+Stable tag: 2.0
 License: GPL2
 
 Export your WordPress data in XML and JSON formats easily!
@@ -13,6 +13,10 @@ This plugin provides JSON and XML output formats for Toolset Views.
 
 The plugin will also fetch all available custom fields for each post, making it truly simple to integrate WordPress
 with other systems that speak JSON and XML.
+
+**New in version 2.0**
+
+This plugin now supports Taxonomy and User queries!
 
 **Usage**
 
@@ -48,6 +52,12 @@ http://wp-types.com/home/views-create-elegant-displays-for-your-content/
 
 == Changelog ==
 
+= 2.0 =
+* Support for Taxonomy queries
+* Support for User queries (Views 1.4 and up)
+* Improved XML validation
+* Improved security with per-view API tokens and global token
+
 = 1.0 =
 * Initial release
 
@@ -57,7 +67,7 @@ Initial release
 
 == Upcoming features ==
 
-* Support for Taxonomy and User queries
+Support for attaching taxonomy data to posts is planned
 
 Feel free to contribute over at GitHub:
 https://github.com/khromov/wp-views-output-formats
