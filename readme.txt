@@ -2,8 +2,8 @@
 Contributors: khromov
 Tags: views, wp_query, query, xml, json
 Requires at least: 3.6
-Tested up to: 3.8.1
-Stable tag: 2.0
+Tested up to: 3.9
+Stable tag: 2.1
 License: GPL2
 
 Export your WordPress data in XML and JSON formats easily!
@@ -51,6 +51,9 @@ http://wp-types.com/home/views-create-elegant-displays-for-your-content/
 2. Exported XML example
 
 == Changelog ==
+
+= 2.1 =
+* New field: _thumbnail_url - This field returns the URL of the featured image for the post
 
 = 2.0 =
 * Support for Taxonomy queries

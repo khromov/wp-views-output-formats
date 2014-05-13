@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Views Output Formats
+Plugin Name: Views Output Formats - JSON / XML Export
 Plugin URI: http://wordpress.org/extend/plugins/views-output-formats
 Description: Provides JSON and XML output formats for Toolset Views
-Version: 2.0
+Version: 2.1
 Author: khromov
 Author URI: http://khromov.wordpress.com
 License: GPL2
@@ -239,6 +239,13 @@ class Views_Output_Formats
 			{
 				for($i = 0; $i < sizeof($value); $i++)
 					$post->custom_fields[$key]['value_'.($i+1)] = $value[$i];
+			}
+
+			//Add in thumbnail url if it exists
+			if($key === '_thumbnail_id' && isset($value[0]) && intval($value[0]) !== 0)
+			{
+				$featured_image_tmp = wp_get_attachment_image_src(intval($value[0]), 'full');
+				$post->custom_fields['_thumbnail_url'] = $featured_image_tmp[0];
 			}
 		}
 		return $post;
