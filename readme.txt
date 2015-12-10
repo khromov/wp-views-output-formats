@@ -2,7 +2,7 @@
 Contributors: khromov
 Tags: views, wp_query, query, xml, json
 Requires at least: 3.6
-Tested up to: 3.9
+Tested up to: 4.4
 Stable tag: 2.1
 License: GPL2
 
